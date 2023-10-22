@@ -3,10 +3,12 @@ const prisma = new PrismaClient();
 
 async function createItem(req, res) {
   try {
-    let { title, description, status, createdBy, assignedTo } = req.body;
+    let { title, description, createdBy, assignedTo, status } = req.body;
     // Assign the task to the reporter by default if no assignee is provided
     if (!assignedTo) assignedTo = createdBy;
     // Using transaction to create the task
+
+    console.log(assignedTo);
     const task = await prisma.$transaction(async (prisma) => {
       const createdTask = await prisma.task.create({
         data: { title, description, status, createdBy, assignedTo },
@@ -16,7 +18,7 @@ async function createItem(req, res) {
     res.json(task);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Task creation failed" });
+    res.status(500).json({ message: "Task creation failed" });
   }
 }
 
@@ -53,7 +55,7 @@ async function updateItem(req, res) {
         currentTask.status !== status &&
         !validTransitions[currentTask.status].includes(status)
       ) {
-        return res.status(400).json({ error: "Invalid status transition" });
+        return res.status(400).json({ message: "Invalid status transition" });
       }
     }
     // Using transaction to update the item
@@ -67,7 +69,7 @@ async function updateItem(req, res) {
     res.json(task);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Task update failed" });
+    res.status(500).json({ message: "Task update failed" });
   }
 }
 
@@ -79,7 +81,7 @@ async function getItems(req, res) {
     res.json(tasks);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
