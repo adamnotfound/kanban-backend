@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 async function createItem(req, res) {
   try {
-    let { title, description, createdBy, assignedTo, status } = req.body;
+    let { title, description, createdBy, assignedTo } = req.body;
     // Assign the task to the reporter by default if no assignee is provided
     if (!assignedTo) assignedTo = createdBy;
     // Using transaction to create the task
@@ -11,7 +11,7 @@ async function createItem(req, res) {
     console.log(assignedTo);
     const task = await prisma.$transaction(async (prisma) => {
       const createdTask = await prisma.task.create({
-        data: { title, description, status, createdBy, assignedTo },
+        data: { title, description, status: "ToDo", createdBy, assignedTo },
       });
       return createdTask;
     });
